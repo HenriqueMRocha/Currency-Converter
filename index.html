@@ -1,18 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conversor de Moedas</title>
-
+    <title>Currency Converter</title>
     <link rel="stylesheet" href="assets/style/style.css">
 </head>
 <body>
-    <div id="res"></div>
+    <div class="converter">
+        <h1 class="converter__title">Currency Converter</h1>
+        <div class="converter__container">
+            <input type="number" class="converter__input" id="amount" placeholder="Enter amount">
+            <div class="converter__currency-wrapper">
+                <select class="converter__select" id="currencyFrom">
+                    <option value="USD" selected>US Dollar (USD)</option>
+                    <option value="BRL">Brazilian Real (BRL)</option>
+                    <option value="EUR">Euro (EUR)</option>
+                </select>
+                
+                <span class="converter__text">to</span>
+        
+                <select class="converter__select" id="currencyTo">
+                    <option value="USD">US Dollar (USD)</option>
+                    <option value="BRL" selected>Brazilian Real (BRL)</option>
+                    <option value="EUR">Euro (EUR)</option>
+                </select>
+            </div>
+            <button class="converter__swap-btn" id="swapBtn" aria-label="Swap currencies">⇅</button>
 
-    <input type="text" name="usd" id="usd">
-    <input type="text" name="brl" id="brl">
-    
+            <button class="converter__button" onclick="handleConversion()">Convert</button>
+        </div>
+        <p class="converter__result" id="result"></p>
+    </div>
     <script src="assets/script/main.js"></script>
 </body>
 </html>

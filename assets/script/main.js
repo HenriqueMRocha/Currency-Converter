@@ -1,75 +1,69 @@
-let dolar = 5.67;
+class CurrencyConverter {
+    constructor() {
+        this.amountInput = document.getElementById('amount');
+        this.currencyFromSelect = document.getElementById('currencyFrom');
+        this.currencyToSelect = document.getElementById('currencyTo');
+        this.resultElement = document.getElementById('result');
+        this.swapButton = document.getElementById('swapBtn');
 
-let usdInput = document.querySelector("#usd");
-let brlInput = document.querySelector("#brl");
+        // Event listeners
+        this.swapButton.addEventListener('click', () => this.swapCurrencies());
+        this.amountInput.addEventListener('input', () => this.validateInput());
+    }
 
-usdInput.addEventListener("keyup", () => {
-    convert('usd-to-brl');
-});
+    async handleConversion() {
+        try {
+            const amount = this.amountInput.value;
+            const fromCurrency = this.currencyFromSelect.value;
+            const toCurrency = this.currencyToSelect.value;
 
-brlInput.addEventListener("keyup", () => {
-    convert('brl-to-usd');
-});
+            if (!amount) {
+                throw new Error('Please enter an amount');
+            }
 
-usdInput.addEventListener('blur', () => {
-    usdInput.value = formatCurrency(usdInput.value);
-});
+            const convertedAmount = await this.convertCurrency(amount, fromCurrency, toCurrency);
+            this.displayResult(amount, fromCurrency, convertedAmount, toCurrency);
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
 
-brlInput.addEventListener('blur', () => {
-    brlInput.value = formatCurrency(brlInput.value);
-});
+    async convertCurrency(amount, fromCurrency, toCurrency) {
+        const url = `https://api.exchangerate-api.com/v4/latest/${fromCurrency}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        const rate = data.rates[toCurrency];
+        return (amount * rate).toFixed(2);
+    }
 
-usdInput.value = '1000,00';
-convert("usd-to-brl");
+    swapCurrencies() {
+        [this.currencyFromSelect.value, this.currencyToSelect.value] = 
+        [this.currencyToSelect.value, this.currencyFromSelect.value];
 
-// FUNCTIONS 
-function formatCurrency(value) {
-    // Adjust value
-    let fixedValue = fixValue(value);
-    
-    // Use format function
-    let options = {
-        useGrouping: false,
-        minimumFractionDigits: 2,
-    };
-    let formatter = new Intl.NumberFormat("pt-BR", options);
-    return formatter.format(fixedValue);
-};
+        if (this.amountInput.value) {
+            this.handleConversion();
+        }
+    }
 
-function fixValue(value) {
-    let fixedValue = value.replace(',', '.');
-    let floatValue = parseFloat(fixedValue);
-    if (floatValue == NaN) {
-        floatValue = 0;
-    };
-    return floatValue;
-};
+    validateInput() {
+        this.amountInput.value = this.amountInput.value.replace(/[^\d.]/g, '');
+    }
 
-function convert(type) {
-    if (type == "usd-to-brl") {
-        // Ajustar a formatação do valor
-        let fixedValue = fixValue(usdInput.value);
-        let result = fixedValue * dolar;
-        result = result.toFixed(2);
+    displayResult(amount, fromCurrency, convertedAmount, toCurrency) {
+        this.resultElement.innerText = 
+            `${amount} ${fromCurrency} = ${convertedAmount} ${toCurrency}`;
+    }
 
-        // Convert value
-        brlInput.value = formatCurrency(result)
+    handleError(error) {
+        console.error('Error:', error);
+        this.resultElement.innerText = `Error: ${error.message}`;
+    }
+}
 
-        // Show in the real field 
-    };
-    
-    if (type == "brl-to-usd") {
-        let fixedValue = fixValue(brlInput.value);
-        let result = fixedValue / dolar;
-        result = result.toFixed(2);
+// Initialize the converter
+const converter = new CurrencyConverter();
 
-        usdInput.value = formatCurrency(result);
-    };
-};
-
-
-// Construir um site que converta moedas
-
-// Colocar as cotações das moedas em variaveis (api)
-// Fazer o calculo de conversão
-// Retornar os valores
+// Global function to handle conversion (called from HTML)
+function handleConversion() {
+    converter.handleConversion();
+}
